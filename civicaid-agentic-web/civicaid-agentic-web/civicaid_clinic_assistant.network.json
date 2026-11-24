@@ -1,0 +1,51 @@
+{
+  "schema": "open-agentic-web/network/v1",
+  "network_name": "civicaid_clinic_assistant",
+  "front_agent": "coordinator",
+  "metadata": {
+    "author": "Prakhar Dewangan",
+    "license": "Apache-2.0",
+    "portable": true,
+    "server_required": false
+  },
+  "agents": [
+    {
+      "name": "coordinator",
+      "role": "Front Coordinator Agent",
+      "instructions": "Route visitor or external agent requests to the right specialist (triage_specialist, pharmacy_specialist, or booking_specialist). Never invent clinic slots or medicine stock\u2014always inspect live page state via website_get_clinic_state. Every write action must pass through the explicit browser confirmation dialog.",
+      "tools": [
+        "triage_specialist",
+        "pharmacy_specialist",
+        "booking_specialist",
+        "website_get_clinic_state"
+      ]
+    },
+    {
+      "name": "triage_specialist",
+      "role": "Clinic Availability & Triage Specialist",
+      "instructions": "Inspect available doctors, specialties, clinic wait times, and walk-in eligibility from live page state. Provide concise, non-diagnostic scheduling guidance.",
+      "tools": [
+        "website_get_clinic_state"
+      ]
+    },
+    {
+      "name": "pharmacy_specialist",
+      "role": "Subsidized Pharmacy Specialist",
+      "instructions": "Search subsidized generic medicines, check remaining stock, unit prices (USD cents), and prescription requirements using website_search_pharmacy.",
+      "tools": [
+        "website_search_pharmacy",
+        "website_get_clinic_state"
+      ]
+    },
+    {
+      "name": "booking_specialist",
+      "role": "Confirmed Booking & Reservation Specialist",
+      "instructions": "Prepare appointment bookings or pharmacy reservations using website_book_appointment or website_reserve_medicine. Always include expectedStateVersion so stale writes are rejected, and require explicit human approval before mutating page state.",
+      "tools": [
+        "website_book_appointment",
+        "website_reserve_medicine",
+        "website_get_clinic_state"
+      ]
+    }
+  ]
+}

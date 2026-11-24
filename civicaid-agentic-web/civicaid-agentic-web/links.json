@@ -1,0 +1,8 @@
+{
+  "schema": "open-agentic-web/links/v1",
+  "peer_policy": {
+    "require_visitor_consent": true,
+    "allowed_origins": []
+  },
+  "peers": []
+}

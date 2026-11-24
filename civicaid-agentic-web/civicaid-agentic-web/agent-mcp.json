@@ -1,0 +1,5 @@
+{
+  "schema": "open-agentic-web/mcp/v1",
+  "public_mcp_available": false,
+  "reason": "Static browser-first deployment; all tools execute locally inside the visitor's browser with explicit human-in-the-loop confirmation."
+}

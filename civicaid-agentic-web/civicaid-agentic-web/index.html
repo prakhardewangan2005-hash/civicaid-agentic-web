@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicAid Hub — Open Agentic Community Clinic &amp; Pharmacy</title>
+  <style>
+    :root {
+      --bg: #f4f7f6; --surface: #ffffff; --ink: #12211e; --muted: #536661;
+      --border: #d7e2df; --accent: #0d7a5f; --accent-soft: #e6f5f0; --warn: #b45309;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand h1 { margin: 0; font-size: 20px; }
+    .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+    .hdr-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); border: 1px solid #b9e2d6; }
+    button { font: inherit; font-size: 13.5px; font-weight: 600; padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button:hover { opacity: 0.92; }
+    main { max-width: 1240px; margin: 20px auto; padding: 0 16px 40px; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 18px; align-items: start; }
+    @media (max-width: 920px) { main { grid-template-columns: 1fr; } }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .card h2 { margin: 0 0 10px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+    .item { border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+    .item.booked { opacity: 0.55; background: #f8faf9; }
+    .meta { font-size: 12.5px; color: var(--muted); }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 999px; background: #eef3f1; color: var(--muted); }
+    .chat-box { display: flex; flex-direction: column; gap: 10px; }
+    .messages { height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #fafcfb; display: flex; flex-direction: column; gap: 10px; }
+    .msg { padding: 9px 12px; border-radius: 10px; font-size: 13.5px; white-space: pre-wrap; max-width: 92%; }
+    .msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
+    .msg.agent { background: #fff; border: 1px solid var(--border); align-self: flex-start; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 12px; padding: 5px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); border: 1px solid #c3e6dc; cursor: pointer; }
+    .input-row { display: flex; gap: 8px; }
+    input[type="text"], input[type="password"], select { flex: 1; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font: inherit; font-size: 13.5px; }
+    .trace { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: #0f1b18; color: #bfe8da; padding: 10px 12px; border-radius: 8px; max-height: 170px; overflow-y: auto; }
+    .trace div { margin-bottom: 4px; }
+    .trace b { color: #5ef2c2; }
+    dialog { border: 1px solid var(--border); border-radius: 12px; padding: 20px; max-width: 560px; width: 92%; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+    dialog::backdrop { background: rgba(10, 20, 18, 0.55); }
+    pre { background: #0f1b18; color: #d6f5eb; padding: 12px; border-radius: 8px; overflow: auto; max-height: 320px; font-size: 12px; }
+    .field { margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+    .row-end { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .empty { font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>CivicAid Community Clinic &amp; Pharmacy</h1>
+      <p>Open Agentic Website · Standard HTML/JS/JSON · Browser-executed 4-agent network with BYOK LLM support</p>
+    </div>
+    <div class="hdr-actions">
+      <span class="pill" id="modePill">Runtime: Loading...</span>
+      <button id="btnSpec">Inspect Spec JSON</button>
+      <button id="btnSettings">⚙ AI Model Settings</button>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="card">
+        <h2>Today's Community Clinic Slots <span class="meta" id="stateVer">State v1</span></h2>
+        <div class="grid" id="doctorsGrid"></div>
+      </div>
+
+      <div class="card">
+        <h2>Subsidized Generic Pharmacy <span class="meta">Simulated pickup · No real payment</span></h2>
+        <div class="grid" id="pharmacyGrid"></div>
+      </div>
+
+      <div class="card">
+        <h2>Your Confirmed Appointments &amp; Pickups</h2>
+        <div id="recordsBox" class="empty">No appointments or reservations yet. Book manually or ask the Open Agentic Assistant →</div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card chat-box">
+        <h2>Open Agentic Assistant <span class="pill">4 Agents · Browser Runtime</span></h2>
+        <div class="chips" id="sampleChips"></div>
+        <div class="messages" id="messages">
+          <div class="msg agent">Welcome to CivicAid Hub! I run a 4-agent network (Coordinator, Triage, Pharmacy, Booking) directly in your browser using <code>agent-manifest.json</code> and <code>civicaid_clinic_assistant.network.json</code>. Ask about wait times, subsidized medicines, or booking a slot.</div>
+        </div>
+        <form class="input-row" id="chatForm">
+          <input type="text" id="chatInput" placeholder="Ask about doctors, medicines, or book a slot..." required />
+          <button type="submit" class="primary">Send</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Live Multi-Agent Execution Trace</h2>
+        <div class="trace" id="traceBox"></div>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="confirmDlg">
+    <h3 id="cTitle" style="margin:0 0 8px;">Confirm Action</h3>
+    <p id="cSummary" style="margin:0 0 6px; font-weight:600;"></p>
+    <p id="cMeta" class="meta" style="margin:0 0 12px;"></p>
+    <p class="meta">Open Agentic Web Policy: All write actions require explicit visitor confirmation before modifying page state.</p>
+    <div class="row-end">
+      <button id="cCancel">Decline</button>
+      <button id="cOk" class="primary">Confirm Action</button>
+    </div>
+  </dialog>
+
+  <dialog id="settingsDlg">
+    <h3 style="margin:0 0 10px;">⚙ AI Model Settings (BYOK)</h3>
+    <p class="meta" style="margin-top:0;">Keys stay in your browser localStorage only. Never sent to any host server. Leave on Local Deterministic Mode for zero-key evaluation.</p>
+    <div class="field">
+      <label>Inference Provider</label>
+      <select id="sProvider">
+        <option value="local-deterministic">Local Deterministic Multi-Agent Engine (Zero Key)</option>
+        <option value="otari">Otari Hosted (https://api.otari.ai/api/v1)</option>
+        <option value="openai">OpenAI (https://api.openai.com/v1)</option>
+        <option value="openrouter">OpenRouter (https://openrouter.ai/api/v1)</option>
+        <option value="custom-openai-compatible">Custom CORS OpenAI-Compatible Endpoint</option>
+      </select>
+    </div>
+    <div class="field"><label>Provider Base URL</label><input type="text" id="sUrl" /></div>
+    <div class="field"><label>Model</label><input type="text" id="sModel" /></div>
+    <div class="field"><label>API Key (Stored Locally Only)</label><input type="password" id="sKey" placeholder="Optional — only for BYOK providers" /></div>
+    <div class="row-end">
+      <button id="sClose">Cancel</button>
+      <button id="sSave" class="primary">Save Settings</button>
+    </div>
+  </dialog>
+
+  <dialog id="specDlg">
+    <h3 style="margin:0 0 8px;">Published Open Agentic Web Spec Files</h3>
+    <p class="meta" style="margin-top:0;">Publicly fetchable JSON artifacts conforming to <code>worldwide-agentic-web-mvp</code>:</p>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button id="tabManifest" class="primary">agent-manifest.json</button>
+      <button id="tabNetwork">civicaid_clinic_assistant.network.json</button>
+    </div>
+    <pre id="specPre"></pre>
+    <div class="row-end"><button id="specClose">Close</button></div>
+  </dialog>
+
+  <script type="module">
+    import { AgenticWebRuntime, initialClinicState, loadLlmSettings, saveLlmSettings } from "./runtime.js";
+
+    const state = structuredClone(initialClinicState);
+    const $ = (id) => document.getElementById(id);
+    let specCache = { manifest: null, network: null };
+
+    function renderAll() {
+      $("stateVer").textContent = `State v${state.version}`;
+      $("doctorsGrid").innerHTML = state.doctors.map((d) => `
+        <div class="item ${d.available ? "" : "booked"}">
+          <div>
+            <strong>${d.name}</strong><br/>
+            <span class="tag">${d.specialty}</span>
+            <div class="meta" style="margin-top:6px;">Slot: ${d.slot} · Wait: ~${d.waitMins} min</div>
+            <div class="meta">Fee: ${d.feeCents === 0 ? "Free ($0.00)" : "$" + (d.feeCents / 100).toFixed(2)}</div>
+          </div>
+          <button ${d.available ? "" : "disabled"} data-book="${d.id}">${d.available ? "Book Manually" : "Booked"}</button>
+        </div>
+      `).join("");
+
+      $("pharmacyGrid").innerHTML = state.pharmacy.map((m) => `
+        <div class="item">
+          <div>
+            <strong>${m.name}</strong><br/>
+            <span class="tag">${m.category}</span>
+            <div class="meta" style="margin-top:6px;">Price: $${(m.priceCents / 100).toFixed(2)} · Stock: ${m.stock}</div>
+            <div class="meta">${m.rxRequired ? "Prescription required at counter" : "Over-the-counter"}</div>
+          </div>
+          <button ${m.stock > 0 ? "" : "disabled"} data-res="${m.id}">Reserve 1 Pack</button>
+        </div>
+      `).join("");
+
+      const items = [
+        ...state.appointments.map((a) => `<div><strong>[${a.id}] Appointment:</strong> ${a.doctorName} (${a.specialty}) at ${a.slot} for <em>${a.patientName}</em></div>`),
+        ...state.reservations.map((r) => `<div><strong>[${r.id}] Pharmacy Pickup:</strong> ${r.qty}x ${r.medicineName} ($${(r.totalCents / 100).toFixed(2)})</div>`)
+      ];
+      $("recordsBox").innerHTML = items.length ? items.join("") : "No appointments or reservations yet. Book manually or ask the Open Agentic Assistant →";
+
+      document.querySelectorAll("[data-book]").forEach((b) => {
+        b.onclick = () => runtime.runTool("website_book_appointment", { doctorId: b.dataset.book, patientName: "Walk-in Visitor" });
+      });
+      document.querySelectorAll("[data-res]").forEach((b) => {
+        b.onclick = () => runtime.runTool("website_reserve_medicine", { medicineId: b.dataset.res, qty: 1 });
+      });
+
+      const s = loadLlmSettings();
+      $("modePill").textContent = s.provider === "local-deterministic"
+        ? "Mode: Local Multi-Agent (Zero Key)"
+        : `Mode: BYOK (${s.provider})`;
+    }
+
+    function addMsg(role, text) {
+      const div = document.createElement("div");
+      div.className = `msg ${role}`;
+      div.textContent = text;
+      $("messages").appendChild(div);
+      $("messages").scrollTop = $("messages").scrollHeight;
+    }
+
+    function addTrace({ agent, step, detail }) {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>[${new Date().toLocaleTimeString()}]</span> <b>${agent}</b>.${step} — ${detail}`;
+      $("traceBox").prepend(div);
+    }
+
+    function askConfirm({ title, summary, meta }) {
+      return new Promise((resolve) => {
+        $("cTitle").textContent = title;
+        $("cSummary").textContent = summary;
+        $("cMeta").textContent = meta;
+        const dlg = $("confirmDlg");
+        const cleanup = (val) => { dlg.close(); resolve(val); };
+        $("cOk").onclick = () => cleanup(true);
+        $("cCancel").onclick = () => cleanup(false);
+        dlg.showModal();
+      });
+    }
+
+    const runtime = new AgenticWebRuntime({
+      getState: () => state,
+      onBook: (doctorId, patientName, expectedVersion) => {
+        if (expectedVersion !== state.version) return { ok: false, error: "State version changed; please re-confirm." };
+        const doc = state.doctors.find((d) => d.id === doctorId && d.available);
+        if (!doc) return { ok: false, error: "Slot unavailable." };
+        doc.available = false;
+        state.version += 1;
+        const booking = { id: `APT-${100 + state.appointments.length + 1}`, doctorName: doc.name, specialty: doc.specialty, slot: doc.slot, patientName };
+        state.appointments.push(booking);
+        renderAll();
+        return { ok: true, booking, version: state.version };
+      },
+      onReserve: (medicineId, qty, expectedVersion) => {
+        if (expectedVersion !== state.version) return { ok: false, error: "State version changed; please re-confirm." };
+        const med = state.pharmacy.find((m) => m.id === medicineId && m.stock >= qty);
+        if (!med) return { ok: false, error: "Insufficient stock." };
+        med.stock -= qty;
+        state.version += 1;
+        const reservation = { id: `RX-${200 + state.reservations.length + 1}`, medicineName: med.name, qty, totalCents: med.priceCents * qty };
+        state.reservations.push(reservation);
+        renderAll();
+        return { ok: true, reservation, version: state.version };
+      },
+      onConfirm: askConfirm,
+      onTrace: addTrace
+    });
+
+    async function handleSend(text) {
+      if (!text.trim()) return;
+      addMsg("user", text);
+      $("chatInput").value = "";
+      const reply = await runtime.sendMessage(text);
+      addMsg("agent", reply);
+    }
+
+    $("chatForm").onsubmit = (e) => { e.preventDefault(); handleSend($("chatInput").value); };
+
+    // Settings dialog
+    const presets = {
+      "local-deterministic": { url: "", model: "deterministic-router-v1" },
+      otari: { url: "https://api.otari.ai/api/v1", model: "alibaba/qwen-3.5-35b-a3b" },
+      openai: { url: "https://api.openai.com/v1", model: "gpt-4o-mini" },
+      openrouter: { url: "https://openrouter.ai/api/v1", model: "anthropic/claude-3.5-haiku" },
+      "custom-openai-compatible": { url: "https://api.example.com/v1", model: "my-model" }
+    };
+    $("sProvider").onchange = () => {
+      const p = presets[$("sProvider").value];
+      if (p) { $("sUrl").value = p.url; $("sModel").value = p.model; }
+    };
+    $("btnSettings").onclick = () => {
+      const s = loadLlmSettings();
+      $("sProvider").value = s.provider;
+      $("sUrl").value = s.baseUrl;
+      $("sModel").value = s.model;
+      $("sKey").value = s.apiKey;
+      $("settingsDlg").showModal();
+    };
+    $("sClose").onclick = () => $("settingsDlg").close();
+    $("sSave").onclick = () => {
+      saveLlmSettings({
+        provider: $("sProvider").value,
+        baseUrl: $("sUrl").value.trim(),
+        model: $("sModel").value.trim(),
+        apiKey: $("sKey").value.trim()
+      });
+      $("settingsDlg").close();
+      renderAll();
+    };
+
+    // Spec inspector dialog
+    $("btnSpec").onclick = () => {
+      $("specPre").textContent = JSON.stringify(specCache.manifest, null, 2);
+      $("specDlg").showModal();
+    };
+    $("tabManifest").onclick = () => { $("specPre").textContent = JSON.stringify(specCache.manifest, null, 2); };
+    $("tabNetwork").onclick = () => { $("specPre").textContent = JSON.stringify(specCache.network, null, 2); };
+    $("specClose").onclick = () => $("specDlg").close();
+
+    renderAll();
+    runtime.boot().then((loaded) => {
+      specCache = loaded;
+      $("sampleChips").innerHTML = (loaded.manifest.sample_queries || []).map((q) => `<button type="button" class="chip">${q}</button>`).join("");
+      document.querySelectorAll(".chip").forEach((c) => { c.onclick = () => handleSend(c.textContent); });
+    }).catch((err) => {
+      addTrace({ agent: "runtime", step: "error", detail: err.message });
+    });
+  </script>
+</body>
+</html>

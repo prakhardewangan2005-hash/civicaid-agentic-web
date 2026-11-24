@@ -1,0 +1,71 @@
+{
+  "spec_version": "0.1.0",
+  "protocol": "worldwide-agentic-web-mvp",
+  "site": {
+    "name": "CivicAid Community Clinic & Pharmacy",
+    "description": "Open agentic community healthcare portal exposing doctor slots, subsidized generic pharmacy inventory, and human-confirmed appointment booking directly in the browser.",
+    "url": "https://prakhardewangan2005-hash.github.io/civicaid-agentic-web/",
+    "social_good_domain": "Community Healthcare Access"
+  },
+  "networks": [
+    {
+      "name": "civicaid_clinic_assistant",
+      "definition": "./civicaid_clinic_assistant.network.json",
+      "front_agent": "coordinator",
+      "runtime": "./runtime.js",
+      "execution": "browser"
+    }
+  ],
+  "inference": {
+    "mode": "byok-with-local-fallback",
+    "default_provider": {
+      "name": "Otari",
+      "base_url": "https://api.otari.ai/api/v1",
+      "model": "alibaba/qwen-3.5-35b-a3b"
+    },
+    "supported_providers": [
+      "otari",
+      "openai",
+      "openrouter",
+      "custom-openai-compatible",
+      "local-deterministic"
+    ]
+  },
+  "actions": {
+    "module": "./runtime.js",
+    "agentTools": [
+      {
+        "name": "website_get_clinic_state",
+        "access": "read",
+        "requires_confirmation": false,
+        "description": "Read current doctor slots, clinic wait times, subsidized pharmacy stock, and active bookings."
+      },
+      {
+        "name": "website_search_pharmacy",
+        "access": "read",
+        "requires_confirmation": false,
+        "description": "Search subsidized generic medicines by name or symptom category."
+      },
+      {
+        "name": "website_book_appointment",
+        "access": "write",
+        "requires_confirmation": true,
+        "description": "Book a clinic appointment slot after explicit visitor confirmation with expectedStateVersion."
+      },
+      {
+        "name": "website_reserve_medicine",
+        "access": "write",
+        "requires_confirmation": true,
+        "description": "Reserve a subsidized pharmacy pickup after explicit visitor confirmation."
+      }
+    ]
+  },
+  "sample_queries": [
+    "Which doctors are free today with the shortest wait?",
+    "Check subsidized stock for Metformin or Amoxicillin",
+    "Book me the earliest General Medicine slot for Alex",
+    "Reserve 1 pack of Paracetamol 500mg for pickup"
+  ],
+  "peer_links": "./links.json",
+  "mcp_facade": "./agent-mcp.json"
+}
